@@ -17,3 +17,11 @@ jobs:
       run: echo "NIXPKGS_ALLOW_UNFREE=1" >> $GITHUB_ENV
     - name: Build the toplevel
       run: nix-build --attr toplevel
+    - name: Cache the result to S3 (Backblaze B2)
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.B2_APPKEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.B2_APPKEY }}
+      run: |
+        nix copy --to \
+          's3://hypered-store/cache?endpoint=s3.eu-central-003.backblazeb2.com' \
+          ./result
