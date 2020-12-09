@@ -17,6 +17,14 @@ jobs:
       run: echo "NIXPKGS_ALLOW_UNFREE=1" >> $GITHUB_ENV
     - name: Build the toplevel
       run: nix-build --attr toplevel
+    - name: The toplevel Nix store path is
+      run: echo $(readlink ./result)
+    - run: 'echo "$CACHE_SIGNING_KEY" > cache-priv-key.pem'
+      shell: bash
+      env:
+        CACHE_SIGNING_KEY: ${{ secrets.CACHE_SIGNING_KEY }}
+    - name: Sign the toplevel
+      run: nix sign-paths --recursive --key-file cache-priv-key.pem $(readlink ./result)
     - name: Cache the result to S3 (Backblaze B2)
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.B2_APPKEY_ID }}
