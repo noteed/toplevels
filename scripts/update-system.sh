@@ -3,6 +3,8 @@
 # This script downloads the new system, and activates it. This is similar to
 # the following blog post:
 # https://vaibhavsagar.com/blog/2019/08/22/industrial-strength-deployments/.
+#
+# In other words, it moves from the `current-system` to the `desired-system`.
 
 set -euo pipefail
 
