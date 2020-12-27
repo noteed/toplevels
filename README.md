@@ -20,3 +20,7 @@ take about 50 seconds.
 Playing with a binary cache may reuse cached data in `/root/.cache/nix`,
 resulting in `does not contain a valid signature`, even though `nix path-info
 --sigs ... --store ...` seems fine. Deleting the cache solves the problem.
+
+Backblaze "Daily Class B Transactions Caps" seems to be impacted by simply
+uploading the narinfos to it (I guess that some metadata are downloaded to
+check if the uploads should actually happen).
