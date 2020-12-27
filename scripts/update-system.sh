@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
-# This script downloads the new system, and activates it. This is similar to
-# the following blog post:
+# This script downloads the latest system built by our GitHub action, and
+# activates it. This is similar to the following blog post:
 # https://vaibhavsagar.com/blog/2019/08/22/industrial-strength-deployments/.
 #
 # In other words, it moves from the `current-system` to the `desired-system`.
@@ -12,6 +12,7 @@ echo Querying target toplevel...
 curl -s -o toplevel.txt https://f003.backblazeb2.com/file/hypered-store/toplevels/test.txt
 
 TOPLEVEL="$(cat toplevel.txt)"
+rm toplevel.txt
 
 echo Toplevel is ${TOPLEVEL}.
 
