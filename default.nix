@@ -29,6 +29,14 @@ folding-at-home = pkgs.writeScriptBin "folding-at-home" ''
   ${pkgs.foldingathome}/bin/FAHClient --config ${folding-at-home-configuration}
 '';
 
+update-script = pkgs.runCommandLocal "update.sh" {
+  script = ./update.sh;
+  nativeBuildInputs = [ pkgs.makeWrapper pkgs.curl ];
+} ''
+  makeWrapper $script $out/bin/update-system \
+    --prefix PATH : ${pkgs.lib.makeBinPath []}
+'';
+
 os = import <nixpkgs/nixos> {
   configuration = { config, pkgs, lib, ... }: with lib; {
     imports = [
@@ -55,6 +63,7 @@ os = import <nixpkgs/nixos> {
 
     environment.systemPackages = [
       folding-at-home
+      update-script
       pkgs.htop
     ];
   };

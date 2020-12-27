@@ -7,8 +7,15 @@ current toplevel, which is usually built by `nixos-rebuild`.
 In Nixpkgs, the `nixos/default.nix` file exposes the toplevel as the `system`
 attribute.
 
-This repository contains a test toplevel, to try to build it in a GitHub
-action, and cache it to Backblaze B2.
+This repository contains a Nix expression to define a test toplevel, together
+with a GitHub action to build it and cache it to Backblaze B2.
+
+In addition to the toplevel content, a file containing the latest toplevel (as
+a path in the Nix store) is uploaded to
+https://f003.backblazeb2.com/file/hypered-store/toplevels/test.txt.
+
+The test toplevel contains an `update-system` script which check the above
+file, downloads the corresponding Nix paths, then activate the toplevel.
 
 
 # Notes
@@ -24,3 +31,6 @@ resulting in `does not contain a valid signature`, even though `nix path-info
 Backblaze "Daily Class B Transactions Caps" seems to be impacted by simply
 uploading the narinfos to it (I guess that some metadata are downloaded to
 check if the uploads should actually happen).
+
+Downloading the toplevel on a machine downloads about 500MB, resulting in 2GB
+once unpacked.
