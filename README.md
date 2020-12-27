@@ -32,5 +32,6 @@ Backblaze "Daily Class B Transactions Caps" seems to be impacted by simply
 uploading the narinfos to it (I guess that some metadata are downloaded to
 check if the uploads should actually happen).
 
-Downloading the toplevel on a machine downloads about 500MB, resulting in 2GB
-once unpacked.
+Downloading the toplevel on a different machine downloads about 500MB,
+resulting in 2GB once unpacked. If it is a minor change, it can take around 5
+seconds for about 5MB. If nothing has changed, it takes less than a second.
