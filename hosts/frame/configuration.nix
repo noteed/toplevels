@@ -1,7 +1,13 @@
 # Usage:
 # nixos-rebuild switch -I nixos-config=/home/thu/projects/toplevels/hosts/frame/configuration.nix
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  sources ? import ../../nix/sources.nix,
+  pkgs ? import sources.nixpkgs {},
+  ...
+}:
 
 {
   imports = [
