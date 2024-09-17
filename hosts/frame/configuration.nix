@@ -25,11 +25,10 @@
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  #   useXkbConfig = true; # use xkb.options in tty.
-  # };
+  console.font = "ter-132n";
+  console.keyMap = "us";
+  console.packages = with pkgs; [ terminus_font ];
+  # console.useXkbConfig = true; # use xkb.options in tty.
 
   services.displayManager.defaultSession = "none+xmonad";
 
