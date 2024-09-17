@@ -69,6 +69,10 @@
     ''}"
   '';
 
+  services.tlp.enable = true;
+  services.upower.enable = true;
+  systemd.services.upower.enable = true;
+
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
@@ -95,6 +99,7 @@
   environment.systemPackages = with pkgs; [
     firefox
     git
+    upower
     vim
   ];
 
