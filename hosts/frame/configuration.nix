@@ -47,6 +47,28 @@
     '';
   }];
 
+  # TODO The two Xcursor lines don't seem to work, but maybe I need to restart the session.
+  # TODO Same for this line:
+  # Which is called fonts.optimizeForVeryHighDPI is later version of NixOS.
+  services.xserver.displayManager.sessionCommands = ''
+    xrdb "${pkgs.writeText "xrdb.conf" ''
+      XTerm*faceName:             xft:DejaVu Sans Mono for Powerline:size=8
+      XTerm*utf8:                 2
+
+      Xft.dpi: 256
+      Xft.autohint: 0
+      Xft.lcdfilter: lcddefault
+      Xft.hintstyle: hintfull
+      Xft.hinting: 1
+      Xft.antialias: 1
+      Xft.rgba: rgb
+
+      Xcursor.theme: Vanilla-DMZ
+      ! Apparently size only works if a theme exists?
+      Xcursor.size: 48
+    ''}"
+  '';
+
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
@@ -90,6 +112,14 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+
+  fonts.fontDir.enable = true;
+  fonts.enableGhostscriptFonts = true;
+  fonts.packages = with pkgs; [
+    dejavu_fonts
+    google-fonts
+    powerline-fonts
+  ];
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
