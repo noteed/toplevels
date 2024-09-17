@@ -31,12 +31,21 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
 
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
+  services.displayManager.defaultSession = "none+xmonad";
 
-  # Configure keymap in X11
-  # services.xserver.xkb.layout = "us";
+  services.xserver.enable = true;
+  services.xserver.desktopManager.xterm.enable = false;
+  services.xserver.xkb.layout = "us";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
+
+  # We provide our xmonad binary, so don't use services.xserver.windowManager.xmonad.enable.
+  services.xserver.windowManager.session = [{
+    name = "xmonad";
+    start = ''
+      systemd-cat -t xmonad -- /home/thu/.xmonad/xmonad-x86_64-linux &
+      waitPID=$!
+    '';
+  }];
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
