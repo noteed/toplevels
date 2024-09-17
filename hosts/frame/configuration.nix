@@ -34,6 +34,7 @@
 
   services.xserver.enable = true;
   services.xserver.desktopManager.xterm.enable = false;
+  services.xserver.dpi = 256;
   services.xserver.xkb.layout = "us";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
 
