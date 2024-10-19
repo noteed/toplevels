@@ -104,8 +104,16 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    direnv
     firefox
     git
+    gnupg
+    htop
+    mupdf
+    pass
+    pinentry-curses
+    ripgrep
+    screen
     upower
     vim
   ];
