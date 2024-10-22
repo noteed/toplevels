@@ -20,6 +20,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  # uinput is necessary for kmonad.
+  boot.kernelModules = ["uinput"];
 
   networking.hostName = "frame";
   networking.networkmanager.enable = true;
@@ -94,10 +96,13 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
+  hardware.uinput.enable = true; # For kmonad.
+
   users.users.thu = {
     isNormalUser = true;
     home = "/home/thu";
-    extraGroups = [ "wheel" "networkmanager" ];
+    # input, uinput for kmonad.
+    extraGroups = [ "wheel" "networkmanager" "uinput" "input" ];
     uid = 1000;
   };
 

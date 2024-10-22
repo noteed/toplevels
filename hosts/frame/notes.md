@@ -22,3 +22,7 @@ To change the backlight
 ```
 $ echo 55 > /sys/class/backlight/amdgpu_bl1/brightness
 ```
+
+To have the function keys (F1..F12) act as such instead of multimedia keys,
+there is no BIOS option, but using`fn` and `fn-lock` (on the ESC key) switches
+the behavior (and is supposed to be persisted across reboots).

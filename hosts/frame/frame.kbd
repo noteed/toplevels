@@ -1,0 +1,58 @@
+;; Run with
+;;     kmonad hosts/frame/frame.kbd -l info
+;;
+;; It seems I need to run `xset r rate 150 40` after starting kmonad
+;; to have the key repeat I want. It's done below.
+
+(defcfg
+  input (device-file "/dev/input/by-path/platform-i8042-serio-0-event-kbd")
+  output (uinput-sink "kmonad-output"
+    "/run/current-system/sw/bin/sleep 1 && /run/current-system/sw/bin/setxkbmap -option compose:ralt && xset r rate 150 40")
+  cmp-seq ralt
+  cmp-seq-delay 5
+  fallthrough true
+  allow-cmd false
+  ;; implicit-around around
+)
+
+(defalias
+  f (tap-hold-next-release 1500 f lsft :timeout-button f)
+  j (tap-hold-next-release 1500 j rsft :timeout-button j)
+
+  d (tap-hold-next-release 1500 d lctl :timeout-button d)
+  k (tap-hold-next-release 1500 k lctl :timeout-button k)
+
+
+  spc (tap-hold-next-release 500 spc (layer-toggle nav))
+
+  ;; Use caps lock as both esc (when tapped), and lctl (when held)
+  ces (tap-next esc lctl)
+)
+
+(defsrc
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  del
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl      lmet lalt      spc            ralt rctl left up   rght
+                                                         down
+)
+
+(deflayer base
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  del
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @ces a    s    @d   @f   g    h    @j   @k   l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft lctl      lmet lalt      @spc           ralt rctl left up   rght down
+)
+
+(deflayer nav
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    pgdn pgup _    _    _    _    _
+  _    _    _    _    _    _    left down up   rght _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _         _    _         _              _    _    _    _    _
+                                                    _
+)
