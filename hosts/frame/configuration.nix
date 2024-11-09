@@ -104,7 +104,9 @@
     isNormalUser = true;
     home = "/home/thu";
     # input, uinput for kmonad.
-    extraGroups = [ "wheel" "networkmanager" "uinput" "input" ];
+    # dialout to use minicom against the Protecli Vault, which appears
+    # at /dev/ttyUSB0
+    extraGroups = [ "wheel" "networkmanager" "uinput" "input" "dialout" ];
     uid = 1000;
   };
 
