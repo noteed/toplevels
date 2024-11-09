@@ -57,15 +57,15 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  # users.users.alice = {
-  #   isNormalUser = true;
-  #   extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-  #   packages = with pkgs; [
-  #     firefox
-  #     tree
-  #   ];
-  # };
+  users.users.thu = {
+    isNormalUser = true;
+    home = "/home/thu";
+    extraGroups = [ "wheel" ];
+    uid = 1000;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDWw6Hpr9E1RyDPgGfFsVmgxfk0SzIkx5vzsq7BxWTLt" # thu on frame
+    ];
+  };
 
   environment.systemPackages = with pkgs; [
     vim
@@ -83,11 +83,6 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  # Temporarily allow these.
-  services.openssh.settings = {
-    PasswordAuthentication = true;
-    PermitRootLogin = "yes";
-  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
