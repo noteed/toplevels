@@ -1,5 +1,4 @@
-# Usage:
-# nixos-rebuild switch -I nixos-config=/home/thu/projects/toplevels/hosts/frame/configuration.nix
+# This configuration is used with scripts/update-frame.sh script.
 
 {
   config,
@@ -88,10 +87,13 @@
   # Enable sound.
   # hardware.pulseaudio.enable = true;
   # OR
-  # services.pipewire = {
-  #   enable = true;
-  #   pulse.enable = true;
-  # };
+  sound.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
@@ -117,6 +119,7 @@
     mupdf
     pass
     pinentry-curses
+    pulseaudio
     ripgrep
     screen
     upower
