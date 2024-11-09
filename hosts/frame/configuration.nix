@@ -141,6 +141,16 @@
   services.physlock.enable = true;
   services.physlock.allowAnyUser = true;
 
+  services.redshift = {
+    enable = true;
+    temperature = {
+      day = 5700;
+      night = 3500;
+    };
+  };
+  location.latitude = 50.46;
+  location.longitude = 4.86;
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];

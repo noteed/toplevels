@@ -34,3 +34,10 @@ with pactl:
 ```
 $ pactl set-default-sink alsa_output.usb-SteelSeries_Arctis_Pro_Wireless-00.mono-chat
 ```
+
+Redshift is enabled in the configuration, but it seems it must explicitely
+started by my user:
+
+```
+$ systemctl --user start redshift
+```
