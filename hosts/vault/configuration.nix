@@ -67,6 +67,19 @@
     ];
   };
 
+  security.sudo = {
+    enable = true;
+    extraRules= [
+      {  users = [ "thu" ];
+        commands = [
+           { command = "ALL" ;
+             options= [ "NOPASSWD" ];
+          }
+        ];
+      }
+    ];
+  };
+
   environment.systemPackages = with pkgs; [
     vim
   ];
