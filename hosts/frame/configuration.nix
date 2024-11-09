@@ -115,9 +115,12 @@
   environment.systemPackages = with pkgs; [
     direnv
     firefox
+    ghostscript
     git
     gnupg
     htop
+    kitty
+    kmonad
     mupdf
     pass
     pinentry-curses
