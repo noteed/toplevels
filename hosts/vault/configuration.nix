@@ -21,22 +21,22 @@ in
   boot.kernelParams = [ "console=ttyS0,115200n8" ];
 
   networking.hostName = "vault";
-  networking.networkmanager.enable = true;
-  networking.networkmanager.unmanaged = [ "interface-name:wlp4s0" ];
+  networking.useNetworkd = true;
+  networking.networkmanager.enable = false;
   networking.firewall.allowedUDPPorts = [53 67];
+
+  systemd.network.enable = true;
+  systemd.network.networks.wlp4s0 = {
+    enable = true;
+    matchConfig.Name = "wlp4s0";
+    address = [ "192.168.4.1/24" ];
+  };
 
   networking.nat = {
     enable = true;
     internalIPs = [ "192.168.4.0/24" ];
     externalInterface = "eno0"; # Assuming eno0 is our WAN
   };
-
-  networking.interfaces.wlp4s0.ipv4.addresses = [
-    {
-      address = "192.168.4.1";
-      prefixLength = 24;
-    }
-  ];
 
   services.haveged.enable = true;
 
