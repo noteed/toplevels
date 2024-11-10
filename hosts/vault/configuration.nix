@@ -3,13 +3,16 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, lib, pkgs, ... }:
-
+let
+  sources = import ../../nix/sources.nix;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/master.tar.gz"}/module.nix"
       ./disk-config.nix
+      "${sources.sops-nix}/modules/sops"
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -18,9 +21,34 @@
   boot.kernelParams = [ "console=ttyS0,115200n8" ];
 
   networking.hostName = "vault";
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
+  networking.networkmanager.unmanaged = [ "interface-name:wlp4s0" ];
+  networking.firewall.allowedUDPPorts = [53 67];
+
+  networking.interfaces.wlp4s0.ipv4.addresses = [
+    {
+      address = "192.168.4.1";
+      prefixLength = 24;
+    }
+  ];
+
+  services.haveged.enable = true;
+
+  services.hostapd = {
+    enable = true;
+    radios.wlp4s0.networks.wlp4s0.ssid = "oh-la-giraffe";
+    radios.wlp4s0.networks.wlp4s0.authentication.saePasswordsFile =
+      config.sops.secrets.passwords.path;
+  };
+
+  services.dnsmasq = {
+    enable = true;
+    settings = {
+      interface = "wlp4s0";
+      bind-interfaces = true;
+      dhcp-range = "192.168.4.100,192.168.4.254,24h";
+    };
+  };
 
   time.timeZone = "Europe/Brussels";
 
@@ -109,6 +137,10 @@
   # system.copySystemConfiguration = true;
 
   nix.settings.trusted-users = [ "root" "thu" ];
+
+  sops.defaultSopsFile = ../../secrets/hostapd.yaml;
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  sops.secrets.passwords = {};
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
