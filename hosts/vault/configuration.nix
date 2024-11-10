@@ -25,6 +25,12 @@ in
   networking.networkmanager.unmanaged = [ "interface-name:wlp4s0" ];
   networking.firewall.allowedUDPPorts = [53 67];
 
+  networking.nat = {
+    enable = true;
+    internalIPs = [ "192.168.4.0/24" ];
+    externalInterface = "eno0"; # Assuming eno0 is our WAN
+  };
+
   networking.interfaces.wlp4s0.ipv4.addresses = [
     {
       address = "192.168.4.1";
