@@ -55,6 +55,13 @@ in
       dhcp-range = "192.168.4.100,192.168.4.254,24h";
     };
   };
+  # I still see "dnsmasq: unknown interface wlp4s0" in the logs
+  # with this option. Waiting a bit with RestartSec seems to work
+  # though.
+  systemd.services.dnsmasq.after = [
+    "sys-subsystem-net-devices-wlp4s0.device"
+  ];
+  systemd.services.dnsmasq.serviceConfig.RestartSec = 10;
 
   time.timeZone = "Europe/Brussels";
 
