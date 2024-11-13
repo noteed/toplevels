@@ -26,23 +26,156 @@ in
   networking.firewall.allowedUDPPorts = [53 67];
 
   systemd.network.enable = true;
+
+  systemd.network.netdevs = {
+    "11-eno0.10" = {
+      netdevConfig = {
+        Name = "eno0.10";
+        Kind = "vlan";
+      };
+      vlanConfig.Id = 10;
+    };
+  };
+
+  systemd.network.networks."10-eno0" = {
+    enable = true;
+    matchConfig.Name = "eno0";
+    networkConfig = {
+      LinkLocalAddressing = false;
+      LLDP = false;
+      EmitLLDP = false;
+      IPv6AcceptRA = false;
+      IPv6SendRA = false;
+      VLAN = [ config.systemd.network.netdevs."11-eno0.10".netdevConfig.Name ];
+    };
+    DHCP = "no";
+  };
+
+  systemd.network.links = {
+    "20-wan" = {
+      enable = true;
+      matchConfig = {
+        PermanentMACAddress = "64:62:66:2f:30:da";
+      };
+      linkConfig = {
+        Name = "eno0";
+        Description = "Ethernet port 1 - WAN";
+        AlternativeNamesPolicy = [
+          "database"
+          "onboard"
+          "slot"
+          "path"
+        ];
+        MACAddressPolicy = "none";
+        MACAddress = "56:e0:1a:cb:0f:b7";
+      };
+    };
+  };
+
+  # A good chunk of this config is Ramses', while I followed instructions
+  # for Proximus customers who have a "Internet box", while I have a
+  # "B-box 3". Instead of vlan 20, I need vlan 10 and to run pppd.
+  # I guess some options here are not needed and/or wrong.
+  systemd.network.networks."12-eno0.10" = {
+    enable = true;
+    matchConfig.Name =
+      config.systemd.network.netdevs."11-eno0.10".netdevConfig.Name;
+    DHCP = "yes";
+    networkConfig = {
+      Description = "Upstream";
+      DHCPServer = false;
+      DHCPPrefixDelegation = true;
+      MulticastDNS = false;
+      DNSOverTLS = true;
+      IPv6AcceptRA = true;
+      IPv6SendRA = false;
+    };
+    linkConfig = {
+      Multicast = true;
+    };
+    dhcpV4Config = {
+      UseDNS = false;
+      UseNTP = false;
+      UseHostname = false;
+    };
+    dhcpV6Config = {
+      # Workaround for https://github.com/systemd/systemd/issues/31349
+      UseAddress = false;
+      UseDNS = false;
+      UseNTP = false;
+      UseHostname = false;
+
+      # We get a /64 over SLAAC from the ISP, but we can additionally
+      # assign ourselves a /64 in the /56 that was delegated to use.
+      # See the dhcpPrefixDelegation section below where we configure the subnet ID.
+      UseDelegatedPrefix = true;
+      PrefixDelegationHint = "::/56";
+
+      # Start a DHCPv6 client even if the ISP does not send an RA to initiate
+      # WithoutRA = "solicit";
+    };
+    ipv6AcceptRAConfig = {
+      Token = "prefixstable";
+      DHCPv6Client = "no";
+      UseDNS = false;
+    };
+    dhcpPrefixDelegationConfig = {
+      # This interface is the uplink that needs to obtain the prefix
+      UplinkInterface = ":self";
+      # We have two different subnets for the two sides of the router,
+      # subnet ID 0 for the WAN side and subnet ID 1 for the LAN side.
+      SubnetId = 0;
+      # No need to announce our prefix to the ISP, they assigned it to us.
+      Announce = false;
+    };
+  };
+
   systemd.network.networks.wlp4s0 = {
     enable = true;
     matchConfig.Name = "wlp4s0";
     address = [ "192.168.4.1/24" ];
   };
 
+  # Run pppd on top of eno0.10, creating a wan0 interface.
+  services.pppd = {
+    enable = true;
+    peers = {
+      proximus = {
+        autostart = true;
+        enable = true;
+        config = ''
+          plugin pppoe.so
+
+          eno0.10
+          ifname wan0
+
+          persist
+          maxfail 0
+          holdoff 5
+
+          noaccomp
+          default-asyncmap
+          mtu 1492
+
+          noipdefault
+          defaultroute
+        '';
+      };
+    };
+  };
+
   networking.nat = {
     enable = true;
     internalIPs = [ "192.168.4.0/24" ];
-    externalInterface = "eno0"; # Assuming eno0 is our WAN
+    # Assume wan0 is our WAN. It could be eno0 in a simpler setup.
+    externalInterface = "wan0";
   };
 
   services.haveged.enable = true;
 
   services.hostapd = {
     enable = true;
-    radios.wlp4s0.networks.wlp4s0.ssid = "oh-la-giraffe";
+    radios.wlp4s0.networks.wlp4s0.ssid = "oh-la-girafe";
     radios.wlp4s0.networks.wlp4s0.authentication.saePasswordsFile =
       config.sops.secrets.passwords.path;
   };
@@ -53,6 +186,14 @@ in
       interface = "wlp4s0";
       bind-interfaces = true;
       dhcp-range = "192.168.4.100,192.168.4.254,24h";
+      dhcp-option = "26,1492";
+      # Specify Quad9 DNS servers as upstream resolvers
+      server = [
+        "9.9.9.11"
+        "149.112.112.11"
+        "2620:fe::11"
+        "2620:fe::fe:11"
+      ];
     };
   };
   # I still see "dnsmasq: unknown interface wlp4s0" in the logs
@@ -154,6 +295,22 @@ in
   sops.defaultSopsFile = ../../secrets/hostapd.yaml;
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   sops.secrets.passwords = {};
+  sops.secrets.pppoe_username = {
+    sopsFile = ../../secrets/pppoe.yaml;
+    key = "username";
+  };
+  sops.secrets.pppoe_password = {
+    sopsFile = ../../secrets/pppoe.yaml;
+    key = "password";
+  };
+  # This can be manually copied to /etc/ppp/pap-secrets.
+  sops.templates."pppoe-credentials".content = ''
+    ${config.sops.placeholder.pppoe_username} * ${config.sops.placeholder.pppoe_password}
+  '';
+  # This can be manually copied to /etc/ppp/options.
+  sops.templates."pppoe-options".content = ''
+    name ${config.sops.placeholder.pppoe_username}
+  '';
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
